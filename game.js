@@ -1,4 +1,4 @@
-4// 🎨 RWD 繽紛打磚塊遊戲 - 可在瀏覽器與手機上運行
+// 🎨 RWD 繽紛打磚塊遊戲 - 可在瀏覽器與手機上運行
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
@@ -30,7 +30,7 @@ const ball = {
     x: canvas.width / 2,
     y: canvas.height - 100,
     radius: 12,
-    speed: 3,
+    speed: 4,
     dx: 3,
     dy: -3,
     color: "white"
@@ -77,8 +77,13 @@ canvas.addEventListener("touchmove", (e) => {
     e.preventDefault();
 });
 
+let gameLoopId;
+let gameOver = false; // 確保 Game Over 只發生一次
+
 // 更新遊戲邏輯
 function update() {
+    if (gameOver) return;
+    
     paddle.x += paddle.dx;
     if (paddle.x < 0) paddle.x = 0;
     if (paddle.x + paddle.width > canvas.width) paddle.x = canvas.width - paddle.width;
@@ -93,8 +98,13 @@ function update() {
         ball.dy *= -1;
     }
     if (ball.y + ball.radius > canvas.height) {
-        alert("Game Over!");
-        document.location.reload();
+        gameOver = true;
+        cancelAnimationFrame(gameLoopId); // 停止遊戲迴圈
+        setTimeout(() => {
+            alert("Game Over!");
+            document.location.reload(); // 3秒後重新開始遊戲
+        }, 100);
+        return;
     }
     
     if (ball.x > paddle.x && ball.x < paddle.x + paddle.width && ball.y + ball.radius > paddle.y) {
@@ -147,7 +157,7 @@ function draw() {
 function gameLoop() {
     update();
     draw();
-    requestAnimationFrame(gameLoop);
+    gameLoopId = requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
